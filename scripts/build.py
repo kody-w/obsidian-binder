@@ -26,6 +26,7 @@ VAULT_ESSAYS = VAULT_ROOT / "essays"
 OUTPUT_CARDS = REPO_ROOT / "cards"
 SEED_INDEX = REPO_ROOT / "seed-index.json"
 VIEW_HTML = REPO_ROOT / "vault" / "binder-view.html"
+VIEW_HTML_ROOT = REPO_ROOT / "binder-view.html"
 VIEW_TEMPLATE = REPO_ROOT / "scripts" / "view-template.html"
 TWIN_HTML = REPO_ROOT / "index.html"
 TWIN_TEMPLATE = REPO_ROOT / "scripts" / "twin-template.html"
@@ -223,6 +224,9 @@ def write_view_html(payloads: list[dict]) -> None:
         "__GENERATED__", generated
     ).replace("__COUNT__", str(len(payloads)))
     VIEW_HTML.write_text(html, encoding="utf-8")
+    # Mirror to repo root so the web twin's iframe (rendered at /) resolves.
+    # Obsidian reads the vault/ copy; GitHub Pages serves the root copy.
+    VIEW_HTML_ROOT.write_text(html, encoding="utf-8")
 
 
 if __name__ == "__main__":
