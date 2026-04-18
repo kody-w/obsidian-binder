@@ -23,6 +23,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 VAULT_CARDS = REPO_ROOT / "vault" / "cards"
 OUTPUT_CARDS = REPO_ROOT / "cards"
 SEED_INDEX = REPO_ROOT / "seed-index.json"
+VIEW_HTML = REPO_ROOT / "vault" / "binder-view.html"
+VIEW_TEMPLATE = REPO_ROOT / "scripts" / "view-template.html"
 
 REQUIRED_FIELDS = ("seed", "incantation", "name", "agent_id")
 
@@ -112,6 +114,7 @@ def main() -> int:
 
     OUTPUT_CARDS.mkdir(exist_ok=True)
     seeds: dict[str, str] = {}
+    payloads: list[dict] = []
     errors: list[str] = []
     cards_built = 0
 
@@ -129,6 +132,7 @@ def main() -> int:
         out_path = OUTPUT_CARDS / f"{seed}.json"
         out_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         seeds[seed] = f"cards/{seed}.json"
+        payloads.append({**payload, "vault_file": md_path.name})
         cards_built += 1
 
     if errors:
@@ -143,8 +147,20 @@ def main() -> int:
         "seeds": seeds,
     }
     SEED_INDEX.write_text(json.dumps(index, indent=2) + "\n", encoding="utf-8")
-    print(f"Built {cards_built} cards → seed-index.json + cards/*.json")
+    write_view_html(payloads)
+    print(f"Built {cards_built} cards → seed-index.json + cards/*.json + binder-view.html")
     return 0
+
+
+def write_view_html(payloads: list[dict]) -> None:
+    """Inject the card payloads into a self-contained HTML view inside the vault."""
+    template = VIEW_TEMPLATE.read_text(encoding="utf-8")
+    cards_json = json.dumps(payloads, indent=2)
+    generated = datetime.now(timezone.utc).isoformat()
+    html = template.replace("/*__CARDS__*/[]", cards_json).replace(
+        "__GENERATED__", generated
+    ).replace("__COUNT__", str(len(payloads)))
+    VIEW_HTML.write_text(html, encoding="utf-8")
 
 
 if __name__ == "__main__":

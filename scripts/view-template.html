@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Obsidian Binder — Card Grid</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body { font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    margin: 0; padding: 16px; background: #fafafa; color: #222; }
+  header { max-width: 1400px; margin: 0 auto 20px; }
+  h1 { font-size: 22px; margin: 0 0 4px; font-weight: 600; }
+  .meta { color: #888; font-size: 12px; }
+  .controls { margin: 14px 0; display: flex; gap: 8px; flex-wrap: wrap; }
+  input[type=search] { flex: 1; min-width: 200px; padding: 8px 12px; border: 1px solid #ccc;
+    border-radius: 6px; font: inherit; }
+  .tag-filter { padding: 4px 10px; border: 1px solid #ccc; border-radius: 999px;
+    background: #fff; cursor: pointer; font-size: 12px; }
+  .tag-filter.active { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
+  .grid { max-width: 1400px; margin: 0 auto; display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px; }
+  .card { background: #fff; border: 1px solid #e3e3e3; border-radius: 10px;
+    padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: transform .12s, box-shadow .12s; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .card h2 { font-size: 16px; margin: 0 0 6px; font-weight: 600; }
+  .inc { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: #2b6cb0; word-break: break-all; margin-bottom: 6px; letter-spacing: .3px; }
+  .seed { font-family: ui-monospace, monospace; font-size: 10px; color: #999; margin-bottom: 8px; }
+  .excerpt { color: #444; font-size: 13px; margin-bottom: 8px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+  .tag { font-size: 11px; padding: 2px 8px; background: #eef; color: #335; border-radius: 999px; }
+  .source { font-size: 11px; color: #888; }
+  .empty { max-width: 1400px; margin: 60px auto; text-align: center; color: #888; }
+  details.json { margin-top: 8px; font-size: 11px; }
+  details.json pre { background: #f4f4f4; padding: 8px; border-radius: 4px;
+    overflow-x: auto; font-size: 11px; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #1a1a1a; color: #e6e6e6; }
+    .card { background: #242424; border-color: #383838; }
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    input[type=search], .tag-filter { background: #2a2a2a; color: #e6e6e6; border-color: #444; }
+    .tag { background: #2c3a5a; color: #c9d6f0; }
+    .excerpt { color: #ccc; }
+    .meta, .seed, .source { color: #888; }
+    details.json pre { background: #2a2a2a; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Binder — <span id="count">__COUNT__</span> cards</h1>
+  <div class="meta">Generated <span id="ts">__GENERATED__</span> · Live federation copy at <a href="https://kody-w.github.io/obsidian-binder/">kody-w.github.io/obsidian-binder</a></div>
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search by name, incantation, agent_id, or excerpt…">
+  </div>
+  <div class="controls" id="tagbar"></div>
+</header>
+
+<div class="grid" id="grid"></div>
+<div class="empty" id="empty" style="display:none">No cards match your filters.</div>
+
+<script>
+const CARDS = /*__CARDS__*/[];
+let activeTag = null;
+
+function render() {
+  const q = document.getElementById('q').value.toLowerCase().trim();
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  grid.innerHTML = '';
+  let shown = 0;
+
+  for (const c of CARDS) {
+    const hay = (c.name + ' ' + c.incantation + ' ' + c.agent_id + ' ' + (c.notes_excerpt || '') + ' ' + (c.tags || []).join(' ')).toLowerCase();
+    if (q && !hay.includes(q)) continue;
+    if (activeTag && !(c.tags || []).includes(activeTag)) continue;
+    grid.appendChild(cardEl(c));
+    shown++;
+  }
+  empty.style.display = shown ? 'none' : 'block';
+}
+
+function cardEl(c) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  const tagsHtml = (c.tags || []).map(t => `<span class="tag">${escape(t)}</span>`).join('');
+  div.innerHTML = `
+    <h2>${escape(c.name)}</h2>
+    <div class="inc">${escape(c.incantation)}</div>
+    <div class="seed">seed ${escape(c.seed)} · ${escape(c.agent_id)}</div>
+    <div class="excerpt">${escape(c.notes_excerpt || '(no excerpt yet — add notes to the markdown body)')}</div>
+    <div class="tags">${tagsHtml}</div>
+    <div class="source">from ${escape(c.source || '?')} · vault file: <code>${escape(c.vault_file || '')}</code></div>
+    <details class="json"><summary>federation JSON</summary><pre>${escape(JSON.stringify(c, null, 2))}</pre></details>
+  `;
+  return div;
+}
+
+function escape(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildTagBar() {
+  const counts = {};
+  for (const c of CARDS) for (const t of (c.tags || [])) counts[t] = (counts[t]||0)+1;
+  const bar = document.getElementById('tagbar');
+  const tags = Object.keys(counts).sort();
+  for (const t of tags) {
+    const btn = document.createElement('button');
+    btn.className = 'tag-filter';
+    btn.textContent = `${t} (${counts[t]})`;
+    btn.onclick = () => { activeTag = activeTag === t ? null : t; refreshTagBar(); render(); };
+    btn.dataset.tag = t;
+    bar.appendChild(btn);
+  }
+}
+
+function refreshTagBar() {
+  for (const btn of document.querySelectorAll('.tag-filter')) {
+    btn.classList.toggle('active', btn.dataset.tag === activeTag);
+  }
+}
+
+document.getElementById('q').addEventListener('input', render);
+buildTagBar();
+render();
+</script>
+</body>
+</html>
