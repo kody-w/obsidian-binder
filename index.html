@@ -93,6 +93,38 @@
     overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
   .help { padding: 40px; text-align: center; color: var(--fg-3); }
   .menu-btn { display: none; }
+
+  /* === Trading-card preview (shown at top of card-kind notes) === */
+  .tc-wrap { display: flex; gap: 22px; margin: 0 0 22px; align-items: flex-start; flex-wrap: wrap; }
+  .tc-frame { width: 280px; aspect-ratio: 5/7; background: linear-gradient(135deg, #1c1820 0%, #2a2028 100%); border: 2px solid #d4a13c; border-radius: 14px; padding: 10px; box-shadow: 0 0 0 1px rgba(0,0,0,0.6) inset, 0 8px 24px rgba(0,0,0,0.55), 0 0 18px rgba(212, 161, 60, 0.08); display: flex; flex-direction: column; color: #e8e6dd; overflow: hidden; position: relative; flex-shrink: 0; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+  .tc-frame:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 0 1px rgba(0,0,0,0.6) inset, 0 12px 32px rgba(0,0,0,0.7), 0 0 24px rgba(212,161,60,0.35); }
+  .tc-frame::before { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: 12px; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.06) 50%, transparent 65%); opacity: 0.7; }
+  .tc-titlebar { display: flex; justify-content: space-between; align-items: flex-start; background: linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.15)); border: 1px solid rgba(212, 161, 60, 0.3); border-radius: 4px; padding: 6px 9px; gap: 6px; }
+  .tc-name { font-family: Georgia, serif; font-size: 14px; font-weight: 600; line-height: 1.15; color: #e8e6dd; }
+  .tc-tag { font-family: Georgia, serif; font-style: italic; font-size: 11px; color: #8a8678; margin-top: 2px; }
+  .tc-cost { display: flex; gap: 3px; flex-shrink: 0; }
+  .tc-pip { width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; box-shadow: inset 0 -2px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.4); border: 1px solid rgba(0,0,0,0.4); }
+  .tc-pip.n { background: linear-gradient(180deg,#d8d2c2,#a39e8e); color:#2b2820; }
+  .tc-pip.u { background: linear-gradient(180deg,#6db4ee,#2a6fb5); color:#fff; }
+  .tc-pip.b { background: linear-gradient(180deg,#d99656,#a05a18); color:#fff; }
+  .tc-pip.r { background: linear-gradient(180deg,#ee6d6d,#b52a2a); color:#fff; }
+  .tc-pip.g { background: linear-gradient(180deg,#6dd49e,#2aa55a); color:#fff; }
+  .tc-art { margin-top: 6px; aspect-ratio: 1.3/1; background: radial-gradient(ellipse at center, #1a1426 0%, #0a0810 100%); border: 1px solid rgba(212,161,60,0.35); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .tc-art svg { width: 70%; height: 70%; opacity: 0.85; }
+  .tc-typeline { margin-top: 6px; background: linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.15)); border: 1px solid rgba(212,161,60,0.3); border-radius: 4px; padding: 4px 9px; font-family: Georgia, serif; font-size: 11px; color: #e8e6dd; }
+  .tc-textbox { margin-top: 6px; flex: 1; background: linear-gradient(180deg,#f4ecd6,#e8dcb8); color: #1a1612; padding: 8px 10px; font-size: 10.5px; line-height: 1.35; border: 1px solid rgba(0,0,0,0.4); border-radius: 3px; overflow: hidden; }
+  .tc-textbox .ab { margin-bottom: 6px; }
+  .tc-textbox .kw { font-weight: 700; color: #5a3a1a; }
+  .tc-textbox .fl { border-top: 1px solid rgba(90,58,26,0.35); margin-top: 8px; padding-top: 6px; font-style: italic; font-size: 10px; color: #4a3826; }
+  .tc-foot { margin-top: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 9px; letter-spacing: 0.05em; text-transform: uppercase; color: #f4c45a; padding: 0 4px; }
+  .tc-pt { background: linear-gradient(180deg,#f4ecd6,#c5b88a); color:#1a1612; padding: 2px 8px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.4); font-weight: 700; font-size: 11px; box-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+  .tc-stats { display: flex; flex-direction: column; gap: 14px; padding: 4px 0; }
+  .tc-stats .sv { font-family: Georgia, serif; font-size: 22px; font-weight: 700; line-height: 1; }
+  .tc-stats .sv.grade { color: #d4a13c; }
+  .tc-stats .sv.rep { color: #8a4ed6; }
+  .tc-stats .sl { font-size: 9px; letter-spacing: 0.25em; color: var(--fg-3); text-transform: uppercase; margin-top: 4px; }
+  @media (prefers-color-scheme: dark) { .tc-stats .sv.rep { color: #b58cf0; } }
+  @media (max-width: 700px) { .tc-wrap { flex-direction: column; } .tc-frame { width: 100%; max-width: 320px; } }
   @media (max-width: 800px) {
     .menu-btn { display: inline-block; }
     .content { padding: 20px 16px; }
@@ -160,6 +192,9 @@ function openNote(path) {
   const view = document.getElementById('view');
   let html = '<div class="content">';
   html += '<h1>' + esc(note.title) + '</h1>';
+  if (note.kind === 'card') {
+    html += renderTradingCard(note);
+  }
   if (Object.keys(note.frontmatter || {}).length) {
     html += '<div class="frontmatter">';
     for (const [k, v] of Object.entries(note.frontmatter)) {

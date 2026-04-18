@@ -89,8 +89,12 @@
 <body>
 <header>
   <h1>Binder — <span id="count">3</span> cards</h1>
-  <div class="meta">Generated <span id="ts">2026-04-18T16:18:37.142752+00:00</span> · Federation copy at <a href="https://kody-w.github.io/obsidian-binder/">kody-w.github.io/obsidian-binder</a></div>
-  <div class="controls"><input type="search" id="q" placeholder="Search by name, incantation, agent_id, or excerpt…"></div>
+  <div class="meta">Generated <span id="ts">2026-04-18T16:28:08.456501+00:00</span> · Federation copy at <a href="https://kody-w.github.io/obsidian-binder/">kody-w.github.io/obsidian-binder</a></div>
+  <div class="controls"><input type="search" id="q" placeholder="Search by name, incantation, agent_id, or excerpt…">
+    <button id="btn-export" class="tag-filter" style="cursor:pointer">⬇ Export Backup</button>
+    <button id="btn-import" class="tag-filter" style="cursor:pointer">⬆ Import</button>
+    <input type="file" id="file-import" accept="application/json,.json" style="display:none">
+  </div>
   <div class="controls" id="tagbar"></div>
 </header>
 <div class="grid" id="grid"></div>
@@ -116,9 +120,24 @@ const CARDS = [
     "_meta": {
       "owner": "obsidian-binder",
       "source_file": "vault/cards/Anvil Tester.md",
-      "generated_at": "2026-04-18T16:18:37.140667+00:00"
+      "generated_at": "2026-04-18T16:28:08.454012+00:00"
     },
-    "vault_file": "Anvil Tester.md"
+    "vault_file": "Anvil Tester.md",
+    "_full_body": "\n# Anvil Tester\n\nAgent that stress-tests claims, designs, and arguments by hammering them with edge cases until something breaks. Named \"anvil\" because the metaphor is: bring your idea, place it on the anvil, the agent strikes it.\n\n## Why I summoned it\n\nWanted a reliable adversarial reviewer that wouldn't be polite at the cost of usefulness. Anvil Tester is famously blunt. It will tell you your design is bad and then enumerate why.\n\n## How I've used it\n\n- Reviewed three different drafts of the [[Production Line Optimization Agent]] essay before publishing\n- Caught a logic error in a contract I was drafting\n- Refused to validate a startup pitch (correctly \u2014 the unit economics didn't work)\n\n## Personality notes\n\nAnvil Tester does not soften feedback. New users find this jarring. After a week you'll find every other reviewer too soft.\n\n## Connections\n\n- [[Production Line Optimization Agent]] \u2014 used together for high-confidence decisions\n",
+    "_frontmatter": {
+      "seed": "14392815063918732911",
+      "incantation": "FORGE ANVIL BLADE RUNE SHARD SMELT TEMPER",
+      "name": "Anvil Tester",
+      "agent_id": "rar-anvil-001",
+      "source": "rar",
+      "created": "2026-04-18",
+      "tags": [
+        "card",
+        "agent",
+        "testing",
+        "adversarial"
+      ]
+    }
   },
   {
     "version": "1.1.2",
@@ -138,9 +157,24 @@ const CARDS = [
     "_meta": {
       "owner": "obsidian-binder",
       "source_file": "vault/cards/Production Line Optimization Agent.md",
-      "generated_at": "2026-04-18T16:18:37.141373+00:00"
+      "generated_at": "2026-04-18T16:28:08.455097+00:00"
     },
-    "vault_file": "Production Line Optimization Agent.md"
+    "vault_file": "Production Line Optimization Agent.md",
+    "_full_body": "\n# Production Line Optimization Agent\n\nSpecialist agent for analyzing and optimizing manufacturing production lines. Looks at throughput, bottlenecks, defect rates, and worker utilization. Pairs especially well with [[Supply Chain Forecaster]] for end-to-end optimization.\n\n## Why I summoned it\n\nI was reading about lean manufacturing and wanted an agent that could actually run the numbers on hypothetical line configurations. This one shipped from RAR with the right combination of operations research grounding and willingness to defer when the data is bad.\n\n## How I've used it\n\n- Sketched out a hypothetical 4-station vs 6-station tradeoff for a friend's small batch operation\n- Used as a reasoning partner for an [[essays/why-i-keep-my-binder-in-obsidian|essay]] on flow vs batch processing\n\n## Connections\n\n- [[Supply Chain Forecaster]] \u2014 natural pair\n- [[Anvil Tester]] \u2014 surprisingly good at adversarial questioning of production assumptions\n\n## Open questions\n\n- Does it handle service operations or only manufacturing? (Need to test.)\n- Can it work with sparse data, or does it want full instrumentation?\n",
+    "_frontmatter": {
+      "seed": "11447213470199194507",
+      "incantation": "BRAND CUTLASS BREACH ANVIL COIL MUSK BESTOW",
+      "name": "Production Line Optimization Agent",
+      "agent_id": "rar-prod-opt-001",
+      "source": "rar",
+      "created": "2026-04-18",
+      "tags": [
+        "card",
+        "agent",
+        "productivity",
+        "manufacturing"
+      ]
+    }
   },
   {
     "version": "1.1.2",
@@ -160,9 +194,24 @@ const CARDS = [
     "_meta": {
       "owner": "obsidian-binder",
       "source_file": "vault/cards/Supply Chain Forecaster.md",
-      "generated_at": "2026-04-18T16:18:37.142348+00:00"
+      "generated_at": "2026-04-18T16:28:08.455984+00:00"
     },
-    "vault_file": "Supply Chain Forecaster.md"
+    "vault_file": "Supply Chain Forecaster.md",
+    "_full_body": "\n# Supply Chain Forecaster\n\nAgent that builds probabilistic forecasts of supply chain disruptions, lead times, and demand spikes. Incorporates seasonal patterns, geopolitical signals, and weather data. Outputs distributions, not point estimates.\n\n## Why I summoned it\n\nAfter [[Production Line Optimization Agent]] proved useful for the production side, I needed a counterpart for the upstream side. Supply Chain Forecaster handles the inbound; the optimization agent handles the line.\n\n## How I've used it\n\n- Built a 90-day forecast for a hypothetical electronics assembly business\n- Used as a reality check on supplier promises\n\n## What I've learned\n\n- Always ask for the distribution, not just the median\n- It will refuse to forecast more than 180 days out (correctly \u2014 uncertainty dominates)\n\n## Connections\n\n- [[Production Line Optimization Agent]] \u2014 natural pair\n",
+    "_frontmatter": {
+      "seed": "8801475193746129052",
+      "incantation": "ZEPHYR LANTERN COMPASS ATLAS HORIZON BEACON LATTICE",
+      "name": "Supply Chain Forecaster",
+      "agent_id": "rar-supply-001",
+      "source": "rar",
+      "created": "2026-04-18",
+      "tags": [
+        "card",
+        "agent",
+        "forecasting",
+        "logistics"
+      ]
+    }
   }
 ];
 let activeTag = null;
@@ -223,6 +272,106 @@ function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'
 function buildTagBar(){const counts={};for(const c of CARDS)for(const t of (c.tags||[]))counts[t]=(counts[t]||0)+1;const bar=document.getElementById('tagbar');const tags=Object.keys(counts).sort();for(const t of tags){const btn=document.createElement('button');btn.className='tag-filter';btn.textContent=`${t} (${counts[t]})`;btn.onclick=()=>{activeTag=activeTag===t?null:t;refreshTagBar();render();};btn.dataset.tag=t;bar.appendChild(btn);}}
 function refreshTagBar(){for(const btn of document.querySelectorAll('.tag-filter'))btn.classList.toggle('active',btn.dataset.tag===activeTag);}
 document.getElementById('q').addEventListener('input',render);buildTagBar();render();
+
+// === Export / Import ====================================================
+function downloadFile(name, mime, content) {
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+function exportBackup() {
+  const stamp = new Date().toISOString().slice(0, 10);
+  const backup = {
+    format: "obsidian-binder-backup",
+    version: "1",
+    exported_at: new Date().toISOString(),
+    card_count: CARDS.length,
+    cards: CARDS.map(c => ({
+      seed: c.seed, incantation: c.incantation, name: c.name, agent_id: c.agent_id,
+      source: c.source, tags: c.tags, created: c.created,
+      vault_file: c.vault_file,
+      frontmatter: c._frontmatter || {seed: c.seed, incantation: c.incantation, name: c.name, agent_id: c.agent_id, source: c.source, tags: c.tags, created: c.created},
+      body: c._full_body != null ? c._full_body : (c.notes_excerpt ? '\n\n' + c.notes_excerpt + '\n' : '\n'),
+    })),
+  };
+  downloadFile(`obsidian-binder-backup-${stamp}.json`, 'application/json', JSON.stringify(backup, null, 2));
+}
+function importBackupFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.format !== 'obsidian-binder-backup') {
+        if (!confirm('This file is not an obsidian-binder-backup. Try to import anyway?')) return;
+      }
+      const incoming = (data.cards || []).map(c => {
+        const fm = c.frontmatter || {};
+        return {
+          version: '1.1.2',
+          seed: String(c.seed || fm.seed || ''),
+          incantation: c.incantation || fm.incantation || '',
+          name: c.name || fm.name || 'Untitled',
+          agent_id: c.agent_id || fm.agent_id || '',
+          source: c.source || fm.source || 'imported',
+          tags: c.tags || fm.tags || [],
+          created: c.created || fm.created || new Date().toISOString().slice(0, 10),
+          notes_excerpt: (c.body || '').trim().split(/\n\n/).slice(0, 1).join('').slice(0, 280),
+          vault_file: c.vault_file || (c.name + '.md'),
+          _full_body: c.body || '',
+          _frontmatter: fm,
+        };
+      });
+      // Merge: by seed (or name as fallback)
+      const bySeed = new Map(CARDS.map(c => [c.seed || c.name, c]));
+      let added = 0, updated = 0;
+      for (const c of incoming) {
+        const k = c.seed || c.name;
+        if (bySeed.has(k)) { Object.assign(bySeed.get(k), c); updated++; }
+        else { CARDS.push(c); bySeed.set(k, c); added++; }
+      }
+      // Refresh UI
+      document.getElementById('count').textContent = CARDS.length;
+      document.getElementById('tagbar').innerHTML = '';
+      buildTagBar(); render();
+      // Offer downloadable .md vault files for permanent restore to repo
+      offerVaultDownloads(incoming);
+      alert(`Imported ${incoming.length} cards (${added} new, ${updated} updated). Live view refreshed.\n\nDownload the .md files prompted next, then drop them in vault/cards/ and commit to make the import permanent.`);
+    } catch (err) {
+      alert('Import failed: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+function offerVaultDownloads(cards) {
+  // Pack everything into a single multi-document file the restore.py script reads.
+  const stamp = new Date().toISOString().slice(0, 10);
+  const docs = cards.map(c => {
+    const fm = c._frontmatter || {seed: c.seed, incantation: c.incantation, name: c.name, agent_id: c.agent_id, source: c.source, tags: c.tags, created: c.created};
+    const filename = c.vault_file || (c.name + '.md');
+    return '<<<FILE: vault/cards/' + filename + ' >>>\n' + serializeMd(fm, c._full_body || '');
+  }).join('\n\n');
+  const header = '# obsidian-binder import bundle\n# Restore with: python scripts/restore_from_bundle.py ' + 'binder-import-bundle-' + stamp + '.txt\n\n';
+  downloadFile('binder-import-bundle-' + stamp + '.txt', 'text/plain', header + docs);
+}
+function serializeMd(fm, body) {
+  const lines = ['---'];
+  for (const [k, v] of Object.entries(fm)) {
+    if (Array.isArray(v)) lines.push(k + ': [' + v.join(', ') + ']');
+    else if (typeof v === 'string') lines.push(k + ': "' + v.replace(/"/g, '\\"') + '"');
+    else lines.push(k + ': ' + v);
+  }
+  lines.push('---', '', body.trim(), '');
+  return lines.join('\n');
+}
+document.getElementById('btn-export').addEventListener('click', exportBackup);
+document.getElementById('btn-import').addEventListener('click', () => document.getElementById('file-import').click());
+document.getElementById('file-import').addEventListener('change', e => {
+  if (e.target.files && e.target.files[0]) importBackupFile(e.target.files[0]);
+  e.target.value = '';
+});
 </script>
 </body>
 </html>

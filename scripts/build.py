@@ -137,7 +137,7 @@ def main() -> int:
         out_path = OUTPUT_CARDS / f"{seed}.json"
         out_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         seeds[seed] = f"cards/{seed}.json"
-        payloads.append({**payload, "vault_file": md_path.name})
+        payloads.append({**payload, "vault_file": md_path.name, "_full_body": body, "_frontmatter": meta})
         cards_built += 1
 
     if errors:

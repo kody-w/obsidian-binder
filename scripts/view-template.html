@@ -90,7 +90,11 @@
 <header>
   <h1>Binder — <span id="count">__COUNT__</span> cards</h1>
   <div class="meta">Generated <span id="ts">__GENERATED__</span> · Federation copy at <a href="https://kody-w.github.io/obsidian-binder/">kody-w.github.io/obsidian-binder</a></div>
-  <div class="controls"><input type="search" id="q" placeholder="Search by name, incantation, agent_id, or excerpt…"></div>
+  <div class="controls"><input type="search" id="q" placeholder="Search by name, incantation, agent_id, or excerpt…">
+    <button id="btn-export" class="tag-filter" style="cursor:pointer">⬇ Export Backup</button>
+    <button id="btn-import" class="tag-filter" style="cursor:pointer">⬆ Import</button>
+    <input type="file" id="file-import" accept="application/json,.json" style="display:none">
+  </div>
   <div class="controls" id="tagbar"></div>
 </header>
 <div class="grid" id="grid"></div>
@@ -156,6 +160,106 @@ function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'
 function buildTagBar(){const counts={};for(const c of CARDS)for(const t of (c.tags||[]))counts[t]=(counts[t]||0)+1;const bar=document.getElementById('tagbar');const tags=Object.keys(counts).sort();for(const t of tags){const btn=document.createElement('button');btn.className='tag-filter';btn.textContent=`${t} (${counts[t]})`;btn.onclick=()=>{activeTag=activeTag===t?null:t;refreshTagBar();render();};btn.dataset.tag=t;bar.appendChild(btn);}}
 function refreshTagBar(){for(const btn of document.querySelectorAll('.tag-filter'))btn.classList.toggle('active',btn.dataset.tag===activeTag);}
 document.getElementById('q').addEventListener('input',render);buildTagBar();render();
+
+// === Export / Import ====================================================
+function downloadFile(name, mime, content) {
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+function exportBackup() {
+  const stamp = new Date().toISOString().slice(0, 10);
+  const backup = {
+    format: "obsidian-binder-backup",
+    version: "1",
+    exported_at: new Date().toISOString(),
+    card_count: CARDS.length,
+    cards: CARDS.map(c => ({
+      seed: c.seed, incantation: c.incantation, name: c.name, agent_id: c.agent_id,
+      source: c.source, tags: c.tags, created: c.created,
+      vault_file: c.vault_file,
+      frontmatter: c._frontmatter || {seed: c.seed, incantation: c.incantation, name: c.name, agent_id: c.agent_id, source: c.source, tags: c.tags, created: c.created},
+      body: c._full_body != null ? c._full_body : (c.notes_excerpt ? '\n\n' + c.notes_excerpt + '\n' : '\n'),
+    })),
+  };
+  downloadFile(`obsidian-binder-backup-${stamp}.json`, 'application/json', JSON.stringify(backup, null, 2));
+}
+function importBackupFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.format !== 'obsidian-binder-backup') {
+        if (!confirm('This file is not an obsidian-binder-backup. Try to import anyway?')) return;
+      }
+      const incoming = (data.cards || []).map(c => {
+        const fm = c.frontmatter || {};
+        return {
+          version: '1.1.2',
+          seed: String(c.seed || fm.seed || ''),
+          incantation: c.incantation || fm.incantation || '',
+          name: c.name || fm.name || 'Untitled',
+          agent_id: c.agent_id || fm.agent_id || '',
+          source: c.source || fm.source || 'imported',
+          tags: c.tags || fm.tags || [],
+          created: c.created || fm.created || new Date().toISOString().slice(0, 10),
+          notes_excerpt: (c.body || '').trim().split(/\n\n/).slice(0, 1).join('').slice(0, 280),
+          vault_file: c.vault_file || (c.name + '.md'),
+          _full_body: c.body || '',
+          _frontmatter: fm,
+        };
+      });
+      // Merge: by seed (or name as fallback)
+      const bySeed = new Map(CARDS.map(c => [c.seed || c.name, c]));
+      let added = 0, updated = 0;
+      for (const c of incoming) {
+        const k = c.seed || c.name;
+        if (bySeed.has(k)) { Object.assign(bySeed.get(k), c); updated++; }
+        else { CARDS.push(c); bySeed.set(k, c); added++; }
+      }
+      // Refresh UI
+      document.getElementById('count').textContent = CARDS.length;
+      document.getElementById('tagbar').innerHTML = '';
+      buildTagBar(); render();
+      // Offer downloadable .md vault files for permanent restore to repo
+      offerVaultDownloads(incoming);
+      alert(`Imported ${incoming.length} cards (${added} new, ${updated} updated). Live view refreshed.\n\nDownload the .md files prompted next, then drop them in vault/cards/ and commit to make the import permanent.`);
+    } catch (err) {
+      alert('Import failed: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+function offerVaultDownloads(cards) {
+  // Pack everything into a single multi-document file the restore.py script reads.
+  const stamp = new Date().toISOString().slice(0, 10);
+  const docs = cards.map(c => {
+    const fm = c._frontmatter || {seed: c.seed, incantation: c.incantation, name: c.name, agent_id: c.agent_id, source: c.source, tags: c.tags, created: c.created};
+    const filename = c.vault_file || (c.name + '.md');
+    return '<<<FILE: vault/cards/' + filename + ' >>>\n' + serializeMd(fm, c._full_body || '');
+  }).join('\n\n');
+  const header = '# obsidian-binder import bundle\n# Restore with: python scripts/restore_from_bundle.py ' + 'binder-import-bundle-' + stamp + '.txt\n\n';
+  downloadFile('binder-import-bundle-' + stamp + '.txt', 'text/plain', header + docs);
+}
+function serializeMd(fm, body) {
+  const lines = ['---'];
+  for (const [k, v] of Object.entries(fm)) {
+    if (Array.isArray(v)) lines.push(k + ': [' + v.join(', ') + ']');
+    else if (typeof v === 'string') lines.push(k + ': "' + v.replace(/"/g, '\\"') + '"');
+    else lines.push(k + ': ' + v);
+  }
+  lines.push('---', '', body.trim(), '');
+  return lines.join('\n');
+}
+document.getElementById('btn-export').addEventListener('click', exportBackup);
+document.getElementById('btn-import').addEventListener('click', () => document.getElementById('file-import').click());
+document.getElementById('file-import').addEventListener('change', e => {
+  if (e.target.files && e.target.files[0]) importBackupFile(e.target.files[0]);
+  e.target.value = '';
+});
 </script>
 </body>
 </html>
