@@ -20,11 +20,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-VAULT_CARDS = REPO_ROOT / "vault" / "cards"
+VAULT_ROOT = REPO_ROOT / "vault"
+VAULT_CARDS = VAULT_ROOT / "cards"
+VAULT_ESSAYS = VAULT_ROOT / "essays"
 OUTPUT_CARDS = REPO_ROOT / "cards"
 SEED_INDEX = REPO_ROOT / "seed-index.json"
 VIEW_HTML = REPO_ROOT / "vault" / "binder-view.html"
 VIEW_TEMPLATE = REPO_ROOT / "scripts" / "view-template.html"
+TWIN_HTML = REPO_ROOT / "index.html"
+TWIN_TEMPLATE = REPO_ROOT / "scripts" / "twin-template.html"
 
 REQUIRED_FIELDS = ("seed", "incantation", "name", "agent_id")
 
@@ -148,8 +152,66 @@ def main() -> int:
     }
     SEED_INDEX.write_text(json.dumps(index, indent=2) + "\n", encoding="utf-8")
     write_view_html(payloads)
-    print(f"Built {cards_built} cards → seed-index.json + cards/*.json + binder-view.html")
+    write_twin_html()
+    print(f"Built {cards_built} cards → seed-index.json + cards/*.json + binder-view.html + index.html (web twin)")
     return 0
+
+
+def write_twin_html() -> None:
+    """Generate index.html — Obsidian-style web twin for users without Obsidian."""
+    notes: dict[str, dict] = {}
+    wiki_resolve: dict[str, str] = {}
+
+    def add_note(path_key: str, title: str, kind: str, raw: str) -> None:
+        meta, body = parse_frontmatter(raw)
+        notes[path_key] = {
+            "title": title,
+            "frontmatter": meta,
+            "body": body,
+            "kind": kind,
+        }
+        # Wiki-link resolution: by title, by path stem, by full path
+        wiki_resolve[title] = path_key
+        wiki_resolve[Path(path_key).name] = path_key
+
+    # README at vault root
+    readme = VAULT_ROOT / "README.md"
+    if readme.exists():
+        add_note("README", "Vault Home", "home", readme.read_text(encoding="utf-8"))
+
+    # Cards
+    if VAULT_CARDS.is_dir():
+        for md in sorted(VAULT_CARDS.glob("*.md")):
+            stem = md.stem
+            add_note(f"cards/{stem}", stem, "card", md.read_text(encoding="utf-8"))
+
+    # Essays
+    if VAULT_ESSAYS.is_dir():
+        for md in sorted(VAULT_ESSAYS.glob("*.md")):
+            stem = md.stem
+            meta, _ = parse_frontmatter(md.read_text(encoding="utf-8"))
+            title = meta.get("title", stem) if isinstance(meta.get("title"), str) else stem
+            add_note(f"essays/{stem}", str(title), "essay", md.read_text(encoding="utf-8"))
+
+    # Compute backlinks: scan each note body for [[wikilinks]]
+    backlinks: dict[str, list[dict]] = {p: [] for p in notes}
+    wiki_re = re.compile(r"\[\[([^\]|]+)(?:\|[^\]]+)?\]\]")
+    for path_key, note in notes.items():
+        for m in wiki_re.finditer(note["body"]):
+            target_raw = m.group(1).strip()
+            target_clean = target_raw.split("/")[-1].replace(".md", "")
+            target = wiki_resolve.get(target_clean) or wiki_resolve.get(target_raw)
+            if target and target != path_key and target in backlinks:
+                # Capture surrounding line as snippet
+                start = max(0, m.start() - 80)
+                end = min(len(note["body"]), m.end() + 80)
+                snippet = re.sub(r"\s+", " ", note["body"][start:end]).strip()
+                backlinks[target].append({"from": path_key, "snippet": snippet})
+
+    vault_data = {"notes": notes, "wikiResolve": wiki_resolve, "backlinks": backlinks}
+    template = TWIN_TEMPLATE.read_text(encoding="utf-8")
+    html = template.replace("/*__VAULT__*/{}", json.dumps(vault_data, ensure_ascii=False))
+    TWIN_HTML.write_text(html, encoding="utf-8")
 
 
 def write_view_html(payloads: list[dict]) -> None:
