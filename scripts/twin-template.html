@@ -266,6 +266,23 @@ function renderMarkdown(text) {
       i++; continue;
     }
     if (inCode) { html += esc(line) + '\n'; i++; continue; }
+    // Allow raw HTML block tags (iframe, div, details, etc.) — pass through verbatim
+    if (/^<(iframe|div|details|summary|section|video|audio|figure|table|p)\b/i.test(line.trim())) {
+      flush();
+      const openTag = line.trim().match(/^<(\w+)/)[1].toLowerCase();
+      const closeRe = new RegExp('</' + openTag + '\\s*>', 'i');
+      // Self-closing on same line?
+      if (closeRe.test(line) || /\/>\s*$/.test(line.trim())) {
+        html += line + '\n'; i++; continue;
+      }
+      // Multi-line block
+      html += line + '\n'; i++;
+      while (i < lines.length && !closeRe.test(lines[i])) {
+        html += lines[i] + '\n'; i++;
+      }
+      if (i < lines.length) { html += lines[i] + '\n'; i++; }
+      continue;
+    }
     if (!line.trim()) { flush(); i++; continue; }
     if (/^#{1,6}\s/.test(line)) {
       flush();
