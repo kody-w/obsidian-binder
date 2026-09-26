@@ -1,5 +1,9 @@
 # obsidian-binder
 
+<!-- rapp1:network-header:start -->
+[![RAPP/1](https://kody-w.github.io/rapp-hive-public/portfolio/badges/obsidian-binder.svg)](https://github.com/kody-w/rapp-hive-public/blob/main/portfolio/repos/obsidian-binder.md) · **New to RAPP?** [Start here: get your Brainstem →](https://github.com/kody-w/rapp-installer#start-here)
+<!-- rapp1:network-header:end -->
+
 **Your Obsidian vault, but it's also a [RAPPcards](https://github.com/kody-w/RAPPcards) binder.**
 
 Karpathy-style second brain meets the federated card protocol. Each card is a markdown note in your vault. You write your own notes about the cards you've summoned. Obsidian gives you backlinks, tags, graph view, and full-text search over your collection. A build script keeps the federation files (`seed-index.json`, JSON card payloads) in sync so other binders can resolve from yours.
